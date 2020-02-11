@@ -4,7 +4,7 @@ import time
 import requests
 import multiprocessing
 
-from insert_data import job_info_mysql
+from data_spider.insert_data import dao
 
 
 class HandleLaGou(object):
@@ -18,16 +18,22 @@ class HandleLaGou(object):
 
     def handle_request(self, method, url, data=None, info=None):
         while True:
-            proxyinfo = "http://%s:%s@%s:%s" % ('H26883P1WBP62N7C', '02F91C9EFD6865F2', 'http-cla.abuyun.com', '9030')
+            proxyinfo = "http://%s:%s@%s:%s" % ('HXFD6J4A22Y9J22D',
+                                                '9C7920A1CD6D8157',
+                                                'http-dyn.abuyun.com', '9020')
             proxy = {
                 "http": proxyinfo,
                 "https": proxyinfo
             }
             try:
                 if method == "GET":
-                    response = self.lagou_session.get(url=url, headers=self.header, proxies=proxy, timeout=6)
+                    response = self.lagou_session.get(url=url,
+                                                      headers=self.header,
+                                                      proxies=proxy, timeout=6)
                 elif method == "POST":
-                    response = self.lagou_session.post(url=url, headers=self.header, data=data, proxies=proxy,
+                    response = self.lagou_session.post(url=url,
+                                                       headers=self.header,
+                                                       data=data, proxies=proxy,
                                                        timeout=6)
             except:
                 self.handle_request_exception(city=info)
@@ -53,7 +59,6 @@ class HandleLaGou(object):
 
     def get_citys(self):
         # <a href=" https://www.lagou.com/langfang-zhaopin/">廊坊</a>
-        city_search = re.compile(r'zhaopin/">(.*?)</a>')
         city_search = re.compile(r'www\.lagou\.com\/.*\/">(.*?)</a>')
         city_url = "https://www.lagou.com/jobs/allCity.html"
         city_res = self.handle_request(method="GET", url=city_url)
@@ -64,7 +69,8 @@ class HandleLaGou(object):
     def get_city_job(self, city):
         first_request_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true& + " \
                             "labelWords=&suginput=" % city
-        first_response = self.handle_request(method="GET", url=first_request_url)
+        first_response = self.handle_request(method="GET",
+                                             url=first_request_url)
         total_page_search = re.compile(r'class="span\stotalNum">(\d+)</span>')
         try:
             total_page = total_page_search.search(first_response).group(1)
@@ -72,32 +78,34 @@ class HandleLaGou(object):
         except:
             return
         else:
-            for i in range(1, int(total_page)+1):
+            for i in range(1, int(total_page) + 1):
                 data = {
-                    "pn":i,
-                    "kd":"python"
+                    "pn": i,
+                    "kd": "python"
                 }
                 page_url = "https://www.lagou.com/jobs/positionAjax.json?city=%s&needAddtionalResult=false" % city
                 referer_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true+" \
                               "&labelWords=&suginput=" % city
                 # referer的URL需要进行encode
                 self.header['Referer'] = referer_url.encode()
-                response = self.handle_request(method="POST", url=page_url,data=data)
+                response = self.handle_request(method="POST", url=page_url,
+                                               data=data)
                 lagou_data = json.loads(response)
                 job_list = lagou_data['content']['positionResult']['result']
                 print("job_list %d" % i)
                 for job in job_list:
-                    job_info_mysql.insert_job_info(job)
+                    dao.insert_job_info(job)
+
 
 
 if __name__ == '__main__':
     lagou = HandleLaGou()
     lagou.get_citys()
     print(lagou.city_list)
-    # for city in lagou.city_list:
-    #     lagou.get_city_job(city)
-    pool = multiprocessing.Pool(2)
     for city in lagou.city_list:
-        pool.apply_async(lagou.get_city_job, args={city,})
-    pool.close()
-    pool.join()
+        lagou.get_city_job(city)
+    # pool = multiprocessing.Pool(2)
+    # for city in lagou.city_list:
+    #     pool.apply_async(lagou.get_city_job, args={city,})
+    # pool.close()
+    # pool.join()
