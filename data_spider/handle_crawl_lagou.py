@@ -102,10 +102,10 @@ if __name__ == '__main__':
     lagou = HandleLaGou()
     lagou.get_citys()
     print(lagou.city_list)
-    for city in lagou.city_list:
-        lagou.get_city_job(city)
-    # pool = multiprocessing.Pool(2)
     # for city in lagou.city_list:
-    #     pool.apply_async(lagou.get_city_job, args={city,})
-    # pool.close()
-    # pool.join()
+    #     lagou.get_city_job(city)
+    pool = multiprocessing.Pool(2)
+    for city in lagou.city_list:
+        pool.apply_async(lagou.get_city_job, args={city,})
+    pool.close()
+    pool.join()

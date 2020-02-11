@@ -20,7 +20,7 @@ class JobInfo(Base):
     # id,设置为主键和自动增长
     id = Column(Integer, primary_key=True, autoincrement=True)
     # 岗位ID,非空字段
-    position_id = Column(Integer, nullable=True)
+    position_id = Column(Integer, nullable=False)
     # 经度
     longitude = Column(Float, nullable=True)
     # 纬度

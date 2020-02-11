@@ -47,7 +47,7 @@ class HandleJobInfo(object):
             # 公司福利标签
             company_label_list=','.join(item['companyLabelList']),
             salary=item['salary'],
-            publish_date=item['createTime'],
+            publish_date=item['createTime'][0:10],
             # 抓取日期
             crawl_date=self.date
         )
@@ -68,7 +68,7 @@ class HandleJobInfo(object):
         result = self.mysql_session.query(JobInfo.industry_field).filter(
             JobInfo.crawl_date == self.date).all()
         result_list1 = [x[0].split(',')[0] for x in result]
-        result_list2 = [x for x in Counter(result_list1).items() if x[1] > 30]
+        result_list2 = [x for x in Counter(result_list1).items() if x[1] > 50]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
@@ -189,12 +189,12 @@ class HandleJobInfo(object):
 
 
 dao = HandleJobInfo()
-# dao.get_salary()
-# dao.get_worker_year()
-# dao.get_education()
-# dao.get_job_number_by_date()
-# dao.get_job_number_by_city()
-# dao.get_fiance_stage()
-# dao.get_company_size()
-# dao.get_job_nature()
-# dao.get_crawl_number()
+dao.get_salary()
+dao.get_worker_year()
+dao.get_education()
+dao.get_job_number_by_date()
+dao.get_job_number_by_city()
+dao.get_fiance_stage()
+dao.get_company_size()
+dao.get_job_nature()
+dao.get_crawl_number()
