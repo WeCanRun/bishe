@@ -122,8 +122,8 @@ class HandleJobInfo(object):
     def get_job_number_by_date(self):
         info = {}
         result = self.mysql_session.query(JobInfo.publish_date, func.count(
-            '*').label('c')).group_by(JobInfo.publish_date).all()
-        result1 = [{'name': x[0], 'value': x[1]} for x in result]
+            '*').label('c')).group_by(JobInfo.publish_date).order_by(JobInfo.publish_date).all()
+        result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result if x[1] > 10]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1

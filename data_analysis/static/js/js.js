@@ -329,8 +329,7 @@
             },
             legend: {
                 top: '0%',
-                // data: ['python', 'java'],
-                data: ['python'],
+                 data: ['python', 'java'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
                     fontSize: '12'

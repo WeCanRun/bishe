@@ -81,7 +81,7 @@ class HandleLaGou(object):
             for i in range(1, int(total_page) + 1):
                 data = {
                     "pn": i,
-                    "kd": "python"
+                    "kd": "java"
                 }
                 page_url = "https://www.lagou.com/jobs/positionAjax.json?city=%s&needAddtionalResult=false" % city
                 referer_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true+" \
