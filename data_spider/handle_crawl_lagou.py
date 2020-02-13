@@ -2,9 +2,11 @@ import json
 import re
 import time
 import requests
-import multiprocessing
+from pathos.multiprocessing import ProcessingPool as pool
 
 from data_spider.insert_data import dao
+
+KeyWord = ['java', 'python', 'golang']
 
 
 class HandleLaGou(object):
@@ -18,8 +20,8 @@ class HandleLaGou(object):
 
     def handle_request(self, method, url, data=None, info=None):
         while True:
-            proxyinfo = "http://%s:%s@%s:%s" % ('HXFD6J4A22Y9J22D',
-                                                '9C7920A1CD6D8157',
+            proxyinfo = "http://%s:%s@%s:%s" % ('HG992179M04KY48D',
+                                                '061617DA70FF47CC',
                                                 'http-dyn.abuyun.com', '9020')
             proxy = {
                 "http": proxyinfo,
@@ -66,7 +68,7 @@ class HandleLaGou(object):
         self.city_list = set(city_search.findall(city_res))
         self.lagou_session.cookies.clear()
 
-    def get_city_job(self, city):
+    def get_city_job(self, city, key_word):
         first_request_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true& + " \
                             "labelWords=&suginput=" % city
         first_response = self.handle_request(method="GET",
@@ -81,7 +83,7 @@ class HandleLaGou(object):
             for i in range(1, int(total_page) + 1):
                 data = {
                     "pn": i,
-                    "kd": "java"
+                    "kd": key_word
                 }
                 page_url = "https://www.lagou.com/jobs/positionAjax.json?city=%s&needAddtionalResult=false" % city
                 referer_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true+" \
@@ -94,18 +96,19 @@ class HandleLaGou(object):
                 job_list = lagou_data['content']['positionResult']['result']
                 print("job_list %d" % i)
                 for job in job_list:
-                    dao.insert_job_info(job)
-
+                    dao.insert_job_data(job, key_word=key_word)
 
 
 if __name__ == '__main__':
     lagou = HandleLaGou()
     lagou.get_citys()
     print(lagou.city_list)
-    # for city in lagou.city_list:
-    #     lagou.get_city_job(city)
-    pool = multiprocessing.Pool(2)
     for city in lagou.city_list:
-        pool.apply_async(lagou.get_city_job, args={city,})
-    pool.close()
-    pool.join()
+        for kd in KeyWord:
+            lagou.get_city_job(city, kd)
+    # pool = pool(2)
+    # for city in lagou.city_list:
+    #     for kd in KeyWord:
+    #         pool.map(lagou.get_city_job, city, kd)
+    # pool.close()
+    # pool.join()

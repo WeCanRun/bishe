@@ -1,14 +1,10 @@
 ﻿$(function () {
-    var keyWord = $("#key_word").text();
-    // console.log(keyWord);
-    connect(keyWord);
-
-    function connect(lang) {
-        $.ajax({
+    $.ajax({
         type: 'get',
-        url: '/get_echart_data/'+lang,
+        url: '/get_echart_data/python',
         dataType: 'json',
         success: function (returnData) {
+            console.log(returnData['map']);
             echarts_1(returnData);
             echarts_2(returnData);
             echarts_5(returnData);
@@ -21,7 +17,15 @@
             crawl_number(returnData)
         }
     });
-    }
+    // echarts_1();
+    // echarts_2();
+    // echarts_4();
+    // echarts_31();
+    // echarts_32();
+    // echarts_33();
+    // echarts_5();
+    // echarts_6();
+    // map();
 
     function echarts_1(data) {
         // 基于准备好的dom，初始化echarts实例
@@ -142,7 +146,7 @@
             },
             legend: {
                 top: '0%',
-                data: [keyWord],
+                data: ['python'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
                     fontSize: '12'
@@ -202,7 +206,7 @@
             }],
             series: [
                 {
-                    name:keyWord,
+                    name:'python',
                     type: 'bar',
                     // data: [1500, 1200, 600, 200, 300, 300, 900],
                     data: data['echart_2']['data'],
@@ -332,7 +336,7 @@
             },
             legend: {
                 top: '0%',
-                data: [keyWord],
+                data: ['python'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
                     fontSize: '12'
@@ -391,7 +395,7 @@
             }],
             series: [
                 {
-                    name: keyWord,
+                    name: 'python',
                     type: 'line',
                     // 是否平滑显示
                     smooth: true,

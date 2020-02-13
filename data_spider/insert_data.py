@@ -3,17 +3,17 @@ from collections import Counter
 
 from sqlalchemy import func
 
-from data_spider.create_tables import Session, JobInfo
+from data_spider.create_tables import Session, JobData, SearchInfo
 
 
-class HandleJobInfo(object):
+class HandleJobData(object):
     def __init__(self):
         self.mysql_session = Session()
-        self.date = time.strftime("%Y-%m-%d", time.localtime())
-        # self.date = '2020-02-07'
+        # self.date = time.strftime("%Y-%m-%d", time.localtime())
+        self.date = '2020-02-12'
 
-    def insert_job_info(self, item):
-        data = JobInfo(
+    def insert_job_data(self, item, key_word):
+        data = JobData(
             # 岗位ID
             position_id=item['positionId'],
             # 经度
@@ -46,14 +46,18 @@ class HandleJobInfo(object):
             district=item['district'],
             # 公司福利标签
             company_label_list=','.join(item['companyLabelList']),
+            # 工资
             salary=item['salary'],
+            # 岗位发布日期
             publish_date=item['createTime'][0:10],
             # 抓取日期
-            crawl_date=self.date
+            crawl_date=self.date,
+            # 爬取的关键字
+            key_word=key_word
         )
-        query_result = self.mysql_session.query(JobInfo).filter(
-            JobInfo.crawl_date == self.date,
-            JobInfo.position_id == item['positionId']).first()
+        query_result = self.mysql_session.query(JobData).filter(
+            JobData.crawl_date == self.date,
+            JobData.position_id == item['positionId']).first()
         if query_result:
             print('该岗位信息已存在%s:%s:%s' % (
                 item['positionId'], item['city'], item['positionName']))
@@ -63,13 +67,20 @@ class HandleJobInfo(object):
             print('新增岗位信息%s' % item['positionId'])
 
     # 获取行业信息
-    def get_industryfield(self):
+    def get_industryfield(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.industry_field).filter(
-            JobInfo.crawl_date == self.date).all()
-        result_list1 = [x[0].split(',')[0] for x in result]
-        result_list2 = [x for x in Counter(result_list1).items() if x[1] > 50]
-        data = [{'name': x[0], 'value': x[1]} for x in result_list2]
+        result = self.mysql_session.query(JobData.industry_field).filter(
+            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
+        result_list1 = []
+        for x in result:
+            res = x[0].split(',')[0]
+            if res == '移动互联网':
+                res = res[2:5]
+            result_list1.append(res)
+        # result_list1 = [x[0].split(',')[0] for x in result]
+        result_list2 = [x for x in Counter(result_list1).items()]
+        data = [{'name': x[0], 'value': x[1]} for x in result_list2 if x[1] >
+                30]
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
@@ -77,13 +88,70 @@ class HandleJobInfo(object):
         return info
 
     # 获取薪资情况
-    def get_salary(self):
+    def get_salary(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.salary).filter(
-            JobInfo.crawl_date == self.date).all()
+        data = [
+            {
+                'name': '5k-10k',
+                'value': 0
+            },
+            {
+                'name': '10k-15k',
+                'value': 0
+            },
+            {
+                'name': '15k-20k',
+                'value': 0
+            },
+            {
+                'name': '20k-25k',
+                'value': 0
+            },
+            {
+                'name': '25k-35k',
+                'value': 0
+            },
+            {
+                'name': '35k-40k',
+                'value': 0
+            },
+            {
+                'name': '45k以上',
+                'value': 0
+            }
+        ]
+        result = self.mysql_session.query(JobData.salary).filter(
+            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
-        result_list2 = [x for x in Counter(result_list1).items() if x[1] > 50]
-        data = [{'name': x[0], 'value': x[1]} for x in result_list2]
+        # result_list2 = [x for x in Counter(result_list1).items()]
+        # data = [{'name': x[0], 'value': x[1]} for x in result_list2 if x[1] >
+        #         50]
+        # name_list = [d['name'] for d in data]
+        # info['x_name'] = name_list
+        # info['data'] = data
+        for r in result_list1:
+            money = r.split('-')
+            if len(money) == 1:
+                data[0]['value'] += 1
+                continue
+            x, y = (int)(money[0][0:-1]), (int)(money[1][0:-1])
+            avg = (x + y) / 2
+
+            if avg < 10:
+                data[0]['value'] += 1
+            elif avg >= 10 and avg < 15:
+                data[1]['value'] += 1
+            elif avg >= 15 and avg < 20:
+                data[2]['value'] += 1
+            elif avg >= 20 and avg < 25:
+                data[3]['value'] += 1
+            elif avg >= 25 and avg < 35:
+                data[4]['value'] += 1
+            elif avg >= 35 and avg < 45:
+                data[5]['value'] += 1
+            else:
+                data[6]['value'] += 1
+
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
@@ -91,12 +159,12 @@ class HandleJobInfo(object):
         return info
 
     # 获取工作年限情况
-    def get_worker_year(self):
+    def get_worker_year(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.work_year).filter(
-            JobInfo.crawl_date == self.date).all()
+        result = self.mysql_session.query(JobData.work_year).filter(
+            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
-        result_list2 = [x for x in Counter(result_list1).items() if x[1] > 50]
+        result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
@@ -105,10 +173,10 @@ class HandleJobInfo(object):
         return info
 
     # 获取学历情况
-    def get_education(self):
+    def get_education(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.education).filter(
-            JobInfo.crawl_date == self.date).all()
+        result = self.mysql_session.query(JobData.education).filter(
+            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
         result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
@@ -119,11 +187,14 @@ class HandleJobInfo(object):
         return info
 
     # 按照日期计算岗位发布数量
-    def get_job_number_by_date(self):
+    def get_job_number_by_date(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.publish_date, func.count(
-            '*').label('c')).group_by(JobInfo.publish_date).order_by(JobInfo.publish_date).all()
-        result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result if x[1] > 10]
+        result = self.mysql_session.query(JobData.publish_date, func.count(
+            '*').label('c')).filter(JobData.key_word == key_word).group_by(
+            JobData.publish_date).order_by(
+            JobData.publish_date).all()
+        result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result if x[
+            1] >= 8]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1
@@ -131,10 +202,11 @@ class HandleJobInfo(object):
         return info
 
     # 根据城市计算岗位数量
-    def get_job_number_by_city(self):
+    def get_job_number_by_city(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.city, func.count(
-            '*').label('c')).group_by(JobInfo.city).all()
+        result = self.mysql_session.query(JobData.city, func.count(
+            '*').label('c')).filter(JobData.key_word == key_word).group_by(
+            JobData.city).all()
         result1 = [{'name': x[0], 'value': x[1]} for x in result]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
@@ -143,10 +215,11 @@ class HandleJobInfo(object):
         return info
 
     # 获取融资情况
-    def get_fiance_stage(self):
+    def get_fiance_stage(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.finance_stage, func.count(
-            '*').label('c')).group_by(JobInfo.finance_stage).all()
+        result = self.mysql_session.query(JobData.finance_stage, func.count(
+            '*').label('c')).filter(JobData.key_word == key_word).group_by(
+            JobData.finance_stage).all()
         result1 = [{'name': x[0], 'value': x[1]} for x in result]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
@@ -155,10 +228,11 @@ class HandleJobInfo(object):
         return info
 
     # 获取公司规模
-    def get_company_size(self):
+    def get_company_size(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.company_size, func.count(
-            '*').label('c')).group_by(JobInfo.company_size).all()
+        result = self.mysql_session.query(JobData.company_size, func.count(
+            '*').label('c')).filter(JobData.key_word == key_word).group_by(
+            JobData.company_size).all()
         result1 = [{'name': x[0], 'value': x[1]} for x in result]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
@@ -166,11 +240,12 @@ class HandleJobInfo(object):
         print(info)
         return info
 
-    # 获取任职要求
-    def get_job_nature(self):
+    # 获取岗位要求
+    def get_job_nature(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobInfo.job_nature, func.count(
-            '*').label('c')).group_by(JobInfo.job_nature).all()
+        result = self.mysql_session.query(JobData.job_nature, func.count(
+            '*').label('c')).filter(JobData.key_word == key_word).group_by(
+            JobData.job_nature).all()
         result1 = [{'name': x[0], 'value': x[1]} for x in result]
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
@@ -179,22 +254,35 @@ class HandleJobInfo(object):
         return info
 
     # 获取抓取数量
-    def get_crawl_number(self):
+    def get_crawl_number(self, key_word):
         info = {}
-        info['today_count'] = self.mysql_session.query(JobInfo).filter(
-            JobInfo.crawl_date == self.date).count()
-        info['all_count'] = self.mysql_session.query(JobInfo).count()
+        info['today_count'] = self.mysql_session.query(JobData).filter(
+            JobData.crawl_date == self.date,
+            JobData.key_word == key_word).count()
+        info['all_count'] = self.mysql_session.query(JobData).filter(
+            JobData.key_word == key_word).count()
         print(info)
         return info
 
+    def query_search_info(self, key_word=None):
+        if not key_word:
+            return self.mysql_session.query(SearchInfo).all()
 
-dao = HandleJobInfo()
-dao.get_salary()
-dao.get_worker_year()
-dao.get_education()
-dao.get_job_number_by_date()
-dao.get_job_number_by_city()
-dao.get_fiance_stage()
-dao.get_company_size()
-dao.get_job_nature()
-dao.get_crawl_number()
+        return self.mysql_session.query(SearchInfo).filter(
+            SearchInfo.job_name == key_word).first()
+
+    def update_search_info(self, key_word):
+        query_result = self.query_search_info(key_word)
+
+        if query_result:
+            query_result.search_time = query_result.search_time + 1
+        else:
+            data = SearchInfo(
+                job_name=key_word,
+                search_time=1
+            )
+            self.mysql_session.add(data)
+        self.mysql_session.commit()
+
+
+dao = HandleJobData()
