@@ -9,7 +9,7 @@ from data_spider.insert_data import dao
 KeyWord = ['java', 'python', 'golang']
 
 
-class HandleLaGou(object):
+class HandleLagou(object):
     def __init__(self):
         self.lagou_session = requests.session()
         self.header = {
@@ -100,7 +100,7 @@ class HandleLaGou(object):
 
 
 if __name__ == '__main__':
-    lagou = HandleLaGou()
+    lagou = HandleLagou()
     lagou.get_citys()
     print(lagou.city_list)
     for city in lagou.city_list:

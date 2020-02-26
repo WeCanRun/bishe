@@ -15,7 +15,7 @@ def index():
 @app.route("/search/", methods=['GET', 'POST'])
 def search():
     lang = request.form['lang']
-    if len(lang) > 6:
+    if len(lang) > 20 :
         return render_template('page_not_found.html')
 
     dao.update_search_info(lang)
@@ -47,7 +47,6 @@ def get_word_clound():
     result = dao.query_search_info()
     if not result:
         return
-    print(result)
     data = [{"name": d.job_name, "value": d.search_time} for d in result]
     # name_list = [x["name"] for x in data]
     # info['x_name'] = name_list

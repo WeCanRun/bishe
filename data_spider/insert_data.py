@@ -265,8 +265,10 @@ class HandleJobData(object):
         return info
 
     def query_search_info(self, key_word=None):
+        self.mysql_session.commit()
         if not key_word:
-            return self.mysql_session.query(SearchInfo).all()
+            return self.mysql_session.query(SearchInfo).filter(
+                SearchInfo.search_time > 3).all()
 
         return self.mysql_session.query(SearchInfo).filter(
             SearchInfo.job_name == key_word).first()
