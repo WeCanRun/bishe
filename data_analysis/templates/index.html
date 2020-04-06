@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="home">
 <head>
     <meta charset="UTF-8">
-    <title>搜索岗位信息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="x-dns-prefetch-control" content="on"/>
+    <link rel="dns-prefetch" href="https://www.hotbak.net"/>
+    <link rel="dns-prefetch" href="https://hm.baidu.com"/>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="apple-mobile-web-app-title" content="热备资讯">
+    <meta property="og:image" content="https://www.hotbak.net/style/images/logo.png"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>岗位信息 - 一触即达，无需繁琐寻找！</title>
     <!--引入echarts.js这个文件-->
     <script src="../static/js/echarts.min.js"></script>
     <!--要画词云图必须要进入这个JS文件-->
     <script src="../static/js/echarts-wordcloud.js"></script>
     <script type="text/javascript" src="../static/js/jquery.js"></script>
-
+    <link rel="stylesheet" href="../static/css/index.css">
 </head>
 <body>
 
-<form id="search" action="/search/" method="post">
-    搜索关键字: <input type="text" name="lang"/>
-    <input type="submit" value="搜索"/>
+<main>
+    <section class="home">
+        <a href="https://www.hotbak.net/" class="logo">
+            <h1>
+                <img src="../static/images/logo.png" alt="logo"/>
+            </h1>
+        </a>
 
-</form>
+        <div class="search-box">
+            <form action="/search/" method="get">
+                <div id="search-input-box" class="search-input-box">
+                    <input type="text" name="lang" placeholder="请搜索岗位名称"/>
+                    <input type="submit" value class="button"/>
+                </div>
+            </form>
+        </div>
+    </section>
 
-<div id="main" style="height: 400px;width: 600px;"></div>
-<style>
-    #main {
-        border-radius: 20px;
-        width: 300px;
-        height: 350px;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
+    <!-- 画词云图 -->
+    <div id="main" style="height: 300px;width: 600px;"></div>
+</main>
 
-    #search {
-        border-radius: 20px;
-        width: 300px;
-        height: 350px;
-        position: absolute;
-        left: 50%;
-        top: 44%;
-        transform: translate(-50%, -50%);
-    }
 
-</style>
 <script type="text/javascript">
     var jsonlist = [];
     $(function () {
@@ -101,6 +103,18 @@
             mycharts.setOption(option)
         };
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 

@@ -1,9 +1,12 @@
-import time
 from collections import Counter
 
 from sqlalchemy import func
 
 from data_spider.create_tables import Session, JobData, SearchInfo
+
+import re
+
+import jieba
 
 
 class HandleJobData(object):
@@ -74,20 +77,20 @@ class HandleJobData(object):
         result_list1 = []
         for x in result:
             res = x[0].split(',')[0]
-            if res == '移动互联网':
-                res = res[2:5]
             result_list1.append(res)
-        # result_list1 = [x[0].split(',')[0] for x in result]
+
         result_list2 = [x for x in Counter(result_list1).items()]
-        data = [{'name': x[0], 'value': x[1]} for x in result_list2 if x[1] >
-                30]
+        data = [{'name': x[0], 'value': x[1]} for x in result_list2]
+        data.sort(key=lambda item: (item.get('value', 0)), reverse=True)
+        if len(data) > 6:
+            data = data[0:6]
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
         print(info)
         return info
 
-    # 获取薪资情况
+    # 获取薪资情况，计算方式待优化
     def get_salary(self, key_word):
         info = {}
         data = [
@@ -151,7 +154,7 @@ class HandleJobData(object):
                 data[5]['value'] += 1
             else:
                 data[6]['value'] += 1
-
+        data.sort(key=lambda item: item.get('value'), reverse=True)
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
@@ -166,6 +169,7 @@ class HandleJobData(object):
         result_list1 = [x[0].split(',')[0] for x in result]
         result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
+        data.sort(key=lambda item: item.get('value'), reverse=True)
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
@@ -191,8 +195,7 @@ class HandleJobData(object):
         info = {}
         result = self.mysql_session.query(JobData.publish_date, func.count(
             '*').label('c')).filter(JobData.key_word == key_word).group_by(
-            JobData.publish_date).order_by(
-            JobData.publish_date).all()
+            JobData.publish_date).order_by(JobData.publish_date).all()
         result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result if x[
             1] >= 8]
         name_list = [res['name'] for res in result1]
@@ -264,6 +267,7 @@ class HandleJobData(object):
         print(info)
         return info
 
+    # 查询关键字被搜索情况
     def query_search_info(self, key_word=None):
         self.mysql_session.commit()
         if not key_word:
@@ -273,18 +277,53 @@ class HandleJobData(object):
         return self.mysql_session.query(SearchInfo).filter(
             SearchInfo.job_name == key_word).first()
 
+    # 更新关键字搜索
     def update_search_info(self, key_word):
         query_result = self.query_search_info(key_word)
 
         if query_result:
+            # 更新关键词的搜索次数
             query_result.search_time = query_result.search_time + 1
         else:
+            # 新增一条记录
             data = SearchInfo(
                 job_name=key_word,
                 search_time=1
             )
             self.mysql_session.add(data)
         self.mysql_session.commit()
+
+    def split_word(self, src):
+        result_str = ""
+        for x in src:
+            result_str += str.strip(str(x))
+        # 使用正则表达式去除标点符号
+        r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+'
+        new_result_str = re.sub(r, '', result_str)
+        # 使用结巴分词
+        result_list1 = jieba.cut(new_result_str, cut_all=False)
+        result_list2 = [x for x in Counter(result_list1).items()]
+        return result_list2
+
+    # 获取福利标签
+    def get_company_label(self, key_word):
+        info = {}
+        result = self.mysql_session.query(JobData.company_label_list).filter(JobData.key_word == key_word)
+        res = self.split_word(result)
+        data = [{'name': x[0], 'value': x[1]} for x in res]
+        info['data'] = data
+        print(info)
+        return info
+
+    # 获取岗位优势
+    def get_position_advantage(self, key_word):
+        info = {}
+        result = self.mysql_session.query(JobData.position_advantage).filter(JobData.key_word == key_word)
+        res = self.split_word(result)
+        data = [{'name': x[0], 'value': x[1]} for x in res]
+        info['data'] = data
+        print(info)
+        return info
 
 
 dao = HandleJobData()

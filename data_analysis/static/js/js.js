@@ -66,10 +66,10 @@
                     // x轴数据标签显示样式
                     interval: 0,
                     show: true,
-                    splitNumber: 15,
+                    splitNumber: 12,
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: '12'
+                        fontSize: '11'
                     }
                 }
             }],
@@ -79,7 +79,7 @@
                     show: true,
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: '12'
+                        fontSize: '11'
                     }
                 },
                 axisTick: {
@@ -145,7 +145,7 @@
                 data: [keyWord],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
-                    fontSize: '12'
+                    fontSize: '11'
                 }
             },
             xAxis: [{
@@ -170,7 +170,7 @@
                     splitNumber: 15,
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: '12'
+                        fontSize: '11'
                     }
                 }
             }],
@@ -266,7 +266,7 @@
                     splitNumber: 15,
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: '12'
+                        fontSize: '11'
                     }
                 }
             }],
@@ -335,7 +335,7 @@
                 data: [keyWord],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
-                    fontSize: '12'
+                    fontSize: '11'
                 }
             },
             grid: {
@@ -352,7 +352,7 @@
                 axisLabel: {
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: 12
+                        fontSize: 11
                     }
                 },
                 axisLine: {
@@ -380,7 +380,7 @@
                 axisLabel: {
                     textStyle: {
                         color: "rgba(255,255,255,.6)",
-                        fontSize: 12
+                        fontSize: 11
                     }
                 },
                 splitLine: {
@@ -400,7 +400,7 @@
                     // 曲线样式,颜色和宽度
                     lineStyle: {
                         color: '#0184d5',
-                        width: 2
+                        width: 1
                     },
                     // 曲线覆盖区域的颜色样式
                     areaStyle: {
@@ -416,7 +416,7 @@
                     itemStyle: {
                         color: '#0184d5',
                         borderColor: 'rgba(221, 220, 107, .1)',
-                        borderWidth: 12
+                        borderWidth: 10
                     },
                     // data: [3, 4, 3, 4, 3, 4, 3, 6, 2, 4, 2, 4, 3, 4, 3, 4, 3, 4, 3, 6, 2, 4, 2, 4]
                     data: data['echart_4']['data']
@@ -495,7 +495,7 @@
                 data: data['echart_31']['x_name'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
-                    fontSize: '12'
+                    fontSize: '11'
                 }
             },
             series: [
@@ -555,7 +555,7 @@
                 data: data['echart_32']['x_name'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
-                    fontSize: '12'
+                    fontSize: '11'
                 }
             },
             series: [
@@ -615,7 +615,7 @@
                 data: data['echart_33']['x_name'],
                 textStyle: {
                     color: 'rgba(255,255,255,.5)',
-                    fontSize: '12'
+                    fontSize: '11'
                 }
             },
             series: [

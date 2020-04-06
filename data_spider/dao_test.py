@@ -1,6 +1,5 @@
 import time
 
-from data_spider.create_tables import JobData
 from data_spider.insert_data import dao
 
 key_word_test = ['java', 'python','golang']
@@ -48,14 +47,16 @@ if __name__ == '__main__':
     for kd in key_word_test:
         print("kd =", kd)
         # dao.insert_job_data(item, key_word=kd)
-        dao.get_industryfield(kd)
-        dao.get_salary(kd)
-        dao.get_worker_year(kd)
-        dao.get_education(kd)
-        dao.get_job_number_by_date(kd)
-        dao.get_job_number_by_city(kd)
-        dao.get_fiance_stage(kd)
-        dao.get_company_size(kd)
-        dao.get_job_nature(kd)
-        dao.get_crawl_number(kd)
-        dao.update_search_info(kd)
+        # dao.get_industryfield(kd)
+        # dao.get_salary(kd)
+        # dao.get_worker_year(kd)
+        # dao.get_education(kd)
+        # dao.get_job_number_by_date(kd)
+        # dao.get_job_number_by_city(kd)
+        # dao.get_fiance_stage(kd)
+        # dao.get_company_size(kd)
+        # dao.get_job_nature(kd)
+        # dao.get_crawl_number(kd)
+        # dao.update_search_info(kd)
+        dao.get_company_label(kd)
+        dao.get_position_advantage(kd)

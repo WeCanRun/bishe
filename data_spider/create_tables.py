@@ -4,8 +4,12 @@ from sqlalchemy.orm import sessionmaker
 
 
 # 创建数据库的连接
+# engine = create_engine("mysql+mysqlconnector://root:123456@127.0.0.1:3306/bishe"
+#                        "?charset=utf8mb4&auth_plugin=mysql_native_password")
+
 engine = create_engine("mysql+mysqlconnector://root:root@127.0.0.1:3306/bishe"
                        "?charset=utf8mb4&auth_plugin=mysql_native_password")
+
 
 # 连接数据库的 session
 Session = sessionmaker(bind=engine)

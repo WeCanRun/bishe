@@ -12,15 +12,15 @@ def index():
 
 
 # 按照关键字搜索
-@app.route("/search/", methods=['GET', 'POST'])
+@app.route("/search/", methods=['GET'])
 def search():
-    lang = request.form['lang']
-    if len(lang) > 20 :
+    key_word = request.args.get('lang')
+    if key_word is None or len(key_word) > 20:
         return render_template('page_not_found.html')
 
-    dao.update_search_info(lang)
-    if lang:
-        return render_template("show.html", key_word=lang)
+    if key_word:
+        dao.update_search_info(key_word)
+        return render_template("show.html", key_word=key_word)
     return render_template("index.html")
 
 
@@ -40,6 +40,7 @@ def get_echart_data(key_word):
     info['counter'] = dao.get_crawl_number(key_word)
     return jsonify(info)
 
+
 # 获取词云图数据
 @app.route("/get_word_clound/")
 def get_word_clound():
@@ -53,6 +54,7 @@ def get_word_clound():
     info['data'] = data
     return jsonify(info)
 
+
 # 错误处理
 @app.errorhandler(404)
 def page_not_found(error):
@@ -60,4 +62,7 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    res = '文娱丨内容'
+    a = res.split('|')
+    print(a, len(a))
+    app.run(debug=True, host="0.0.0.0", port=80)
