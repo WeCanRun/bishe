@@ -59,4 +59,4 @@ if __name__ == '__main__':
         # dao.get_crawl_number(kd)
         # dao.update_search_info(kd)
         dao.get_company_label(kd)
-        dao.get_position_advantage(kd)
+        # dao.get_position_advantage(kd)

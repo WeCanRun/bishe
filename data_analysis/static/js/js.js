@@ -9,6 +9,7 @@
         url: '/get_echart_data/'+lang,
         dataType: 'json',
         success: function (returnData) {
+//            console.log(returnData)
             echarts_1(returnData);
             echarts_2(returnData);
             echarts_5(returnData);
@@ -17,7 +18,7 @@
             echarts_31(returnData);
             echarts_32(returnData);
             echarts_33(returnData);
-            map(returnData);
+            map(returnData,lang);
             crawl_number(returnData)
         }
     });
@@ -647,7 +648,7 @@
         });
     }
 
-    function map(input_data) {
+    function map(input_data, key_word) {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('map_1'));
         // 地图标记点数据
@@ -1055,8 +1056,14 @@
         };
 
         option = {
+         title: {
+            // text: '数据来源于拉勾网',
+            subtext: '点击查看岗位福利词云图',
+            sublink: '/get_position_label/' + key_word,
+            left: 'center'
+         },
             tooltip: {
-                trigger: 'item'
+                trigger: 'item',
                 // formatter: function (params) {
                 //     if (typeof (params.value)[2] == "undefined") {
                 //         return params.name + ' : ' + params.value;
@@ -1064,6 +1071,9 @@
                 //         return params.name + ' : ' + params.value[2];
                 //     }
                 // }
+                 formatter: function(params) {
+                    return `</br>所在城市: ${params.name} </br>岗位数量:  ${params.data.value[2]}`
+                 }
             },
 
             geo: {

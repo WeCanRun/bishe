@@ -1,12 +1,20 @@
+import re
 from collections import Counter
 
 from sqlalchemy import func
 
 from data_spider.create_tables import Session, JobData, SearchInfo
 
-import re
+import jieba.analyse
 
 import jieba
+
+jieba.add_word('五险一金')
+jieba.add_word('六险一金')
+jieba.add_word('带薪年假')
+jieba.add_word('带薪病假')
+jieba.add_word('周末双休')
+jieba.add_word('年底双薪')
 
 
 class HandleJobData(object):
@@ -196,11 +204,37 @@ class HandleJobData(object):
         result = self.mysql_session.query(JobData.publish_date, func.count(
             '*').label('c')).filter(JobData.key_word == key_word).group_by(
             JobData.publish_date).order_by(JobData.publish_date).all()
-        result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result if x[
-            1] >= 8]
-        name_list = [res['name'] for res in result1]
+        # result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result]
+        data = [
+            {
+                'name': '春季',
+                'value': 0
+            },
+            {
+                'name': '夏季',
+                'value': 0
+            },
+            {
+                'name': '秋季',
+                'value': 0
+            },
+            {
+                'name': '冬季',
+                'value': 0
+            }
+        ]
+        for x in result:
+            index, month = 3, int(x[0][5:7])
+            if month >= 3 and month <= 5:
+                index = 0
+            elif month >= 6 and month <= 8:
+                index = 1
+            elif month >= 9 and month <= 11:
+                index = 2
+            data[index]['value'] += x[1]
+        name_list = [res['name'] for res in data]
         info['x_name'] = name_list
-        info['data'] = result1
+        info['data'] = data
         print(info)
         return info
 
@@ -300,9 +334,12 @@ class HandleJobData(object):
         # 使用正则表达式去除标点符号
         r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+'
         new_result_str = re.sub(r, '', result_str)
-        # 使用结巴分词
-        result_list1 = jieba.cut(new_result_str, cut_all=False)
-        result_list2 = [x for x in Counter(result_list1).items()]
+        # # 使用结巴分词
+        # jieba.analyse.set_stop_words("baidu_stopwords.txt")
+        # jieba.analyse.set_idf_path("idf.txt")
+        result_list1 = jieba.analyse.extract_tags(result_str, 50, True)
+        # result_list1 = jieba.cut(new_result_str, cut_all=False)
+        result_list2 = [{'name': item[0], 'value': int(item[1] * len(result_str))} for item in result_list1]
         return result_list2
 
     # 获取福利标签
@@ -310,8 +347,8 @@ class HandleJobData(object):
         info = {}
         result = self.mysql_session.query(JobData.company_label_list).filter(JobData.key_word == key_word)
         res = self.split_word(result)
-        data = [{'name': x[0], 'value': x[1]} for x in res]
-        info['data'] = data
+        # data = [{'name': x[0], 'value': x[1]} for x in res]
+        info['data'] = res
         print(info)
         return info
 
@@ -320,8 +357,8 @@ class HandleJobData(object):
         info = {}
         result = self.mysql_session.query(JobData.position_advantage).filter(JobData.key_word == key_word)
         res = self.split_word(result)
-        data = [{'name': x[0], 'value': x[1]} for x in res]
-        info['data'] = data
+        # data = [{'name': x[0], 'value': x[1]} for x in res]
+        info['data'] = res
         print(info)
         return info
 

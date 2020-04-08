@@ -126,7 +126,7 @@ section.home .logo h1, section.home .logo img {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -30%);
+    transform: translate(-50%, -20%);
 }
 
 

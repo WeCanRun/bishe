@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 
 from data_spider.insert_data import dao
@@ -41,18 +43,27 @@ def get_echart_data(key_word):
     return jsonify(info)
 
 
-# 获取词云图数据
+# 获取首页词云图数据
 @app.route("/get_word_clound/")
 def get_word_clound():
     info = {}
     result = dao.query_search_info()
+    # result = dao.get_company_label('java')
     if not result:
         return
     data = [{"name": d.job_name, "value": d.search_time} for d in result]
-    # name_list = [x["name"] for x in data]
-    # info['x_name'] = name_list
     info['data'] = data
     return jsonify(info)
+
+
+# 获取岗位福利词云图
+@app.route("/get_position_label/<key_word>")
+def get_position_label(key_word):
+    info = {}
+    result = dao.get_company_label(key_word=key_word)
+    if not result:
+        return
+    return render_template("position_label.html", key_word=key_word, data=json.dumps(result))
 
 
 # 错误处理
@@ -62,7 +73,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    res = '文娱丨内容'
-    a = res.split('|')
-    print(a, len(a))
     app.run(debug=True, host="0.0.0.0", port=80)
