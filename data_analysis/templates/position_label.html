@@ -18,26 +18,43 @@
 
 
 <!-- 画词云图 -->
-<div id="main" style="height: 300px;width: 600px;"></div>
+<div id="word_clound" style="height: 400px;width: 600px;"></div>
+
+<div id="bubble_chart" style="height: 600px;width: 800px;"></div>
+
+
 <style>
-    #main {
-    border-radius: 20px;
-    width: 300px;
-    height: 350px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-100%, -70%);
-}
+    #word_clound {
+        border-radius: 20px;
+        // width: 300px;
+        // height: 350px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-120%, -45%);
+    }
+
+     #bubble_chart {
+        border-radius: 20px;
+        //width: 300px;
+        //height: 350px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-20%, -50%);
+    }
+
 </style>
 <script type="text/javascript">
     var key_word = '{{ key_word|safe }}';
     var return_json = eval({{ data|safe }});
-    DrawWordClound(key_word, return_json['data']);
-    conlose.log(key_word);
+
+    DrawWordClound(key_word, return_json['word_clound']['data']);
+    bubble_chart(return_json['bubble_chart'])
+
     function DrawWordClound(key_word, json_list) {
 
-        var mycharts = echarts.init(document.getElementById("main"));
+        var mycharts = echarts.init(document.getElementById("word_clound"));
 
         // 五角星
         // image = "data:image/png;base64,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";
@@ -80,6 +97,137 @@
             mycharts.setOption(option)
         };
     }
+
+    function bubble_chart(data) {
+
+        var myChart = echarts.init(document.getElementById('bubble_chart'));
+
+//        var data = [
+//    [[28604,77,17096869,'Australia',1990],[31163,77.4,27662440,'Canada',1990],[1516,68,1154605773,'China',1990],[13670,74.7,10582082,'Cuba',1990],[28599,75,4986705,'Finland',1990],[29476,77.1,56943299,'France',1990],[31476,75.4,78958237,'Germany',1990],[28666,78.1,254830,'Iceland',1990],[1777,57.7,870601776,'India',1990],[29550,79.1,122249285,'Japan',1990],[2076,67.9,20194354,'North Korea',1990],[12087,72,42972254,'South Korea',1990],[24021,75.4,3397534,'New Zealand',1990],[43296,76.8,4240375,'Norway',1990],[10088,70.8,38195258,'Poland',1990],[19349,69.6,147568552,'Russia',1990],[10670,67.3,53994605,'Turkey',1990],[26424,75.7,57110117,'United Kingdom',1990],[37062,75.4,252847810,'United States',1990]],
+//    [[44056,81.8,23968973,'Australia',2015],[43294,81.7,35939927,'Canada',2015],[13334,76.9,1376048943,'China',2015],[21291,78.5,11389562,'Cuba',2015],[38923,80.8,5503457,'Finland',2015],[37599,81.9,64395345,'France',2015],[44053,81.1,80688545,'Germany',2015],[42182,82.8,329425,'Iceland',2015],[5903,66.8,1311050527,'India',2015],[36162,83.5,126573481,'Japan',2015],[1390,71.4,25155317,'North Korea',2015],[34644,80.7,50293439,'South Korea',2015],[34186,80.6,4528526,'New Zealand',2015],[64304,81.6,5210967,'Norway',2015],[24787,77.3,38611794,'Poland',2015],[23038,73.13,143456918,'Russia',2015],[19360,76.5,78665830,'Turkey',2015],[38225,81.4,64715810,'United Kingdom',2015],[53354,79.1,321773631,'United States',2015]]
+//];
+
+option = {
+    backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{
+        offset: 0,
+        color: '#f7f8fa'
+    }, {
+        offset: 1,
+        color: '#cdd0d5'
+    }]),
+    title: {
+        text: '不同学历各城市平均薪酬与岗位数量',
+        left: 'center'
+    },
+    legend: {
+        right: 10,
+        data: ['大专', '本科','硕士']
+    },
+    xAxis: {
+        splitLine: {
+            lineStyle: {
+                type: 'dashed'
+            }
+        }
+    },
+    yAxis: {
+        splitLine: {
+            lineStyle: {
+                type: 'dashed'
+            }
+        },
+        scale: true
+    },
+    series: [{
+        name: '大专',
+        data: data[0],
+        type: 'scatter',
+        symbolSize: function (data) {
+            return Math.sqrt(data[0]) / 5;
+        },
+        emphasis: {
+            label: {
+                show: true,
+                formatter: function (param) {
+                    return param.data[2];
+                },
+                position: 'top'
+            }
+        },
+        itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(120, 36, 50, 0.5)',
+            shadowOffsetY: 5,
+            color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                offset: 0,
+                color: 'rgb(251, 118, 123)'
+            }, {
+                offset: 1,
+                color: 'rgb(204, 46, 72)'
+            }])
+        }
+    }, {
+        name: '本科',
+        data: data[1],
+        type: 'scatter',
+        symbolSize: function (data) {
+            return Math.sqrt(data[0]) / 5;
+        },
+        emphasis: {
+            label: {
+                show: true,
+                formatter: function (param) {
+                    return param.data[2];
+                },
+                position: 'top'
+            }
+        },
+        itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(25, 100, 150, 0.5)',
+            shadowOffsetY: 5,
+            color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                offset: 0,
+                color: 'rgb(129, 227, 238)'
+            }, {
+                offset: 1,
+                color: 'rgb(25, 183, 207)'
+            }])
+        }
+     }, {
+        name: '硕士',
+        data: data[2],
+        type: 'scatter',
+        symbolSize: function (data) {
+            return Math.sqrt(data[0]) / 5;
+        },
+        emphasis: {
+            label: {
+                show: true,
+                formatter: function (param) {
+                    return param.data[2];
+                },
+                position: 'top'
+            }
+        },
+        itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(25, 100, 150, 0.5)',
+            shadowOffsetY: 5,
+            color: new echarts.graphic.RadialGradient(0.5, 0.6, 1, [{
+                offset: 0,
+                color: 'rgb(129, 227, 238)'
+            }, {
+                offset: 1,
+                color: 'rgb(25, 283, 107)'
+            }])
+        }
+    }]
+    };
+        myChart.setOption(option)
+    }
+
+
 </script>
 
 </body>

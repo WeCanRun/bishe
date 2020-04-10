@@ -1058,7 +1058,7 @@
         option = {
          title: {
             // text: '数据来源于拉勾网',
-            subtext: '点击查看岗位福利词云图',
+            subtext: '点击查看更多岗位数据分析',
             sublink: '/get_position_label/' + key_word,
             left: 'center'
          },

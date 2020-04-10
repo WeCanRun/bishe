@@ -1,12 +1,12 @@
+import requests
+import datetime
+import time
 import json
 import re
+import sched
 import time
-import requests
-from pathos.multiprocessing import ProcessingPool as pool
-
+from multiprocessing.pool import Pool
 from data_spider.insert_data import dao
-
-KeyWord = ['java', 'python', 'golang']
 
 
 class HandleLagou(object):
@@ -17,12 +17,13 @@ class HandleLagou(object):
                           'Chrome/73.0.3683.86 Safari/537.36'
         }
         self.city_list = ""
+        self.keywords = ""
 
     def handle_request(self, method, url, data=None, info=None):
         while True:
-            proxyinfo = "http://%s:%s@%s:%s" % ('HG992179M04KY48D',
-                                                '061617DA70FF47CC',
-                                                'http-dyn.abuyun.com', '9020')
+            proxyinfo = "http://%s:%s@%s:%s" % ('HQ38D6P49P27839C',
+                                                'ACFFAA8D21244264',
+                                                'http-cla.abuyun.com', '9030')
             proxy = {
                 "http": proxyinfo,
                 "https": proxyinfo
@@ -61,11 +62,18 @@ class HandleLagou(object):
 
     def get_citys(self):
         # <a href=" https://www.lagou.com/langfang-zhaopin/">廊坊</a>
-        city_search = re.compile(r'www\.lagou\.com\/.*\/">(.*?)</a>')
+        city_search = re.compile(r'www.lagou.com/.*/">(.*?)</a>')
         city_url = "https://www.lagou.com/jobs/allCity.html"
         city_res = self.handle_request(method="GET", url=city_url)
         # 使用正则匹配城市信息
         self.city_list = set(city_search.findall(city_res))
+        self.lagou_session.cookies.clear()
+
+    def get_keywords(self):
+        keywords_search = re.compile(r'https://www.lagou.com/zhaopin.*<h3>(.*?)</h3></a>')
+        keywords_url = "https://www.lagou.com/"
+        keywords_res = self.handle_request(method="GET", url=keywords_url)
+        self.keywords = set(keywords_search.findall(keywords_res))
         self.lagou_session.cookies.clear()
 
     def get_city_job(self, city, key_word):
@@ -99,16 +107,48 @@ class HandleLagou(object):
                     dao.insert_job_data(job, key_word=key_word)
 
 
-if __name__ == '__main__':
+# 运行爬虫
+def run_spider():
     lagou = HandleLagou()
     lagou.get_citys()
     print(lagou.city_list)
-    for city in lagou.city_list:
-        for kd in KeyWord:
-            lagou.get_city_job(city, kd)
-    # pool = pool(2)
+    lagou.get_keywords()
+    print(lagou.keywords)
     # for city in lagou.city_list:
-    #     for kd in KeyWord:
-    #         pool.map(lagou.get_city_job, city, kd)
-    # pool.close()
-    # pool.join()
+    #     for kd in lagou.keywords:
+    #         lagou.get_city_job(city, kd)
+    pool = Pool(2)
+    for city in lagou.city_list:
+        for kd in lagou.keywords:
+            # pool.map(lagou.get_city_job, city, kd)
+            pool.apply_async(lagou.get_city_job, args=(city, kd,))
+    pool.close()
+    pool.join()
+
+
+# 定时任务
+def scheduled_task(hour=1, minute=0):
+    # 暴力方法一：
+    # while True:
+    #     now = datetime.datetime.now()
+    #     if now.hour == hour and now.minute == minute:
+    #         run_spider()
+    #         print("爬虫耗时：", datetime.datetime.now() - now)
+    #     time.sleep(59)
+
+    # 优雅方法二：
+    # scheduler = sched.scheduler(time.time, time.sleep)
+    # # 增加调度任务
+    # runtime = datetime.datetime(2020, 4, 10, 16, 36, 30)
+    # time_stamp = time.mktime(runtime.timetuple())
+    # scheduler.enterabs(time_stamp, 1, run_spider())
+    # # 运行任务
+    # scheduler.run()
+    # print(runtime, time_stamp)
+    pass
+
+
+if __name__ == '__main__':
+    print("=" * 20, "start", "=" * 20)
+    run_spider()
+    print("=" * 20, "finish", "=" * 20)

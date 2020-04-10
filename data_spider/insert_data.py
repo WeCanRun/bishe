@@ -327,6 +327,7 @@ class HandleJobData(object):
             self.mysql_session.add(data)
         self.mysql_session.commit()
 
+    # 分词
     def split_word(self, src):
         result_str = ""
         for x in src:
@@ -360,6 +361,18 @@ class HandleJobData(object):
         # data = [{'name': x[0], 'value': x[1]} for x in res]
         info['data'] = res
         print(info)
+        return info
+
+    def get_position_num_and_avg_salary_by_city(self, key_word):
+        info = []
+        for edu in ['大专', '本科', '硕士']:
+            result = self.mysql_session.query(func.avg(JobData.salary) * 1000, func.count('*').label('num'), JobData.city,
+                                              JobData.education).filter(JobData.crawl_date == self.date,
+                                                                        JobData.key_word == key_word,
+                                                                        JobData.education == edu,).group_by(
+                JobData.city).order_by('num desc').limit(10).all()
+            info.append(result)
+        print(type(info), info)
         return info
 
 

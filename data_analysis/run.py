@@ -60,10 +60,9 @@ def get_word_clound():
 @app.route("/get_position_label/<key_word>")
 def get_position_label(key_word):
     info = {}
-    result = dao.get_company_label(key_word=key_word)
-    if not result:
-        return
-    return render_template("position_label.html", key_word=key_word, data=json.dumps(result))
+    info['word_clound'] = dao.get_company_label(key_word)
+    info['bubble_chart'] = dao.get_position_num_and_avg_salary_by_city(key_word)
+    return render_template("position_label.html", key_word=key_word, data=json.dumps(info))
 
 
 # 错误处理
