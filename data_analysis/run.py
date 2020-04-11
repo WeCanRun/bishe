@@ -1,6 +1,10 @@
 import json
+import os
+import sys
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request
+
+sys.path.append(os.path.abspath(".."))
 
 from data_spider.insert_data import dao
 
