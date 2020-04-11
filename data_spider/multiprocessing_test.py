@@ -1,7 +1,6 @@
+import os
 import time
 from multiprocessing.pool import Pool
-
-from gevent import os
 
 
 def mul_test(name, num):
