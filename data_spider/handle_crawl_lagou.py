@@ -1,3 +1,6 @@
+import os
+import sys
+
 import requests
 import datetime
 import time
@@ -6,6 +9,8 @@ import re
 import sched
 import time
 from multiprocessing.pool import Pool
+sys.path.append(os.path.abspath(".."))
+
 from data_spider.insert_data import dao
 
 
