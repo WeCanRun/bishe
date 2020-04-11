@@ -1,4 +1,4 @@
 SQLAlchemy==1.2.11
 Flask==1.0.2
 jieba==0.42.1
-requests==2.19.1
+requests==2.20.0
