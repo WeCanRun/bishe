@@ -1,4 +1,5 @@
 import re
+import time
 from collections import Counter
 
 from sqlalchemy import func
@@ -20,8 +21,8 @@ jieba.add_word('年底双薪')
 class HandleJobData(object):
     def __init__(self):
         self.mysql_session = Session()
-        # self.date = time.strftime("%Y-%m-%d", time.localtime())
-        self.date = '2020-02-12'
+        self.date = time.strftime("%Y-%m-%d", time.localtime())
+        # self.date = '2020-02-12'
 
     def insert_job_data(self, item, key_word):
         data = JobData(
@@ -301,6 +302,15 @@ class HandleJobData(object):
         print(info)
         return info
 
+    # 首页热门搜索
+    def query_hot_search(self):
+        result = self.mysql_session.query(JobData.key_word, func.count("*").label("count")).group_by(
+            JobData.key_word).all()
+        # data = [{"name": d[0], "value": d[1]} for d in result]
+        data = [{"name": d.key_word, "value": d.count} for d in result]
+        print(data)
+        return data
+
     # 查询关键字被搜索情况
     def query_search_info(self, key_word=None):
         self.mysql_session.commit()
@@ -366,10 +376,11 @@ class HandleJobData(object):
     def get_position_num_and_avg_salary_by_city(self, key_word):
         info = []
         for edu in ['大专', '本科', '硕士']:
-            result = self.mysql_session.query(func.avg(JobData.salary) * 1000, func.count('*').label('num'), JobData.city,
+            result = self.mysql_session.query(func.avg(JobData.salary) * 1000, func.count('*').label('num'),
+                                              JobData.city,
                                               JobData.education).filter(JobData.crawl_date == self.date,
                                                                         JobData.key_word == key_word,
-                                                                        JobData.education == edu,).group_by(
+                                                                        JobData.education == edu, ).group_by(
                 JobData.city).order_by('num desc').limit(10).all()
             info.append(result)
         print(type(info), info)

@@ -9,9 +9,15 @@ import re
 import sched
 import time
 from multiprocessing.pool import Pool
+
 sys.path.append(os.path.abspath(".."))
 
 from data_spider.insert_data import dao
+
+from pyquery import PyQuery as py
+
+# 自己维护的IP代理池，可用率低
+proxypool_url = 'http://139.9.187.243:5555/random'
 
 
 class HandleLagou(object):
@@ -24,14 +30,27 @@ class HandleLagou(object):
         self.city_list = ""
         self.keywords = ""
 
+    def get_random_proxy(self):
+        """
+        get random proxy from proxypool
+        :return: proxy
+        """
+        return requests.get(proxypool_url).text.strip()
+
     def handle_request(self, method, url, data=None, info=None):
         while True:
-            proxyinfo = "http://%s:%s@%s:%s" % ('HQ38D6P49P27839C',
-                                                'ACFFAA8D21244264',
-                                                'http-cla.abuyun.com', '9030')
+            proxyinfo = "http://%s:%s@%s:%s" % ('H6Z30Y5TYRL5035P',
+                                                'C9F4D073848A4185',
+                                                'http-pro.abuyun.com', '9010')
+            # proxy_ip = self.get_random_proxy()
+            # print("get random proxy ip ", proxy_ip)
+            # proxy = {
+            #     'http': 'http://' + proxy_ip,
+            #     'https': 'https://' + proxy_ip
+            # }
             proxy = {
                 "http": proxyinfo,
-                "https": proxyinfo
+                "https": proxyinfo,
             }
             try:
                 if method == "GET":
@@ -75,10 +94,13 @@ class HandleLagou(object):
         self.lagou_session.cookies.clear()
 
     def get_keywords(self):
-        keywords_search = re.compile(r'https://www.lagou.com/zhaopin.*<h3>(.*?)</h3></a>')
+        # keywords_search = re.compile(r'https://www.lagou.com/zhaopin.*<h3>(.*?)</h3></a>', re.S)
         keywords_url = "https://www.lagou.com/"
         keywords_res = self.handle_request(method="GET", url=keywords_url)
-        self.keywords = set(keywords_search.findall(keywords_res))
+        doc = py(keywords_res)
+        res = doc("#sidebar > div > div:nth-child(1) a h3")
+        # self.keywords = set(keywords_search.findall(keywords_res))
+        self.keywords = set(res.text().split(" "))
         self.lagou_session.cookies.clear()
 
     def get_city_job(self, city, key_word):
@@ -116,12 +138,9 @@ class HandleLagou(object):
 def run_spider():
     lagou = HandleLagou()
     lagou.get_citys()
-    print(lagou.city_list)
+    print(type(lagou.city_list), lagou.city_list)
     lagou.get_keywords()
-    print(lagou.keywords)
-    # for city in lagou.city_list:
-    #     for kd in lagou.keywords:
-    #         lagou.get_city_job(city, kd)
+    print(type(lagou.keywords), lagou.keywords)
     pool = Pool(2)
     for city in lagou.city_list:
         for kd in lagou.keywords:

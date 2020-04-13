@@ -51,11 +51,7 @@ def get_echart_data(key_word):
 @app.route("/get_word_clound/")
 def get_word_clound():
     info = {}
-    result = dao.query_search_info()
-    # result = dao.get_company_label('java')
-    if not result:
-        return
-    data = [{"name": d.job_name, "value": d.search_time} for d in result]
+    data = dao.query_hot_search()
     info['data'] = data
     return jsonify(info)
 
