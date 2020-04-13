@@ -2,16 +2,15 @@ from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-
 # 创建数据库的连接
 engine = create_engine("mysql+mysqlconnector://root:root@127.0.0.1:3306/bishe"
                        "?charset=utf8mb4&auth_plugin=mysql_native_password")
-
 
 # 连接数据库的 session
 Session = sessionmaker(bind=engine)
 # 创建对象的基类:
 Base = declarative_base()
+
 
 class JobData(Base):
     # 表名
@@ -59,6 +58,7 @@ class JobData(Base):
     publish_date = Column(String(length=20), nullable=False)
     # 抓取日期
     crawl_date = Column(String(length=20), nullable=False)
+
 
 class SearchInfo(Base):
     __tablename__ = 'search_info'

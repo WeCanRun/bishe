@@ -22,7 +22,6 @@ class HandleJobData(object):
     def __init__(self):
         self.mysql_session = Session()
         self.date = time.strftime("%Y-%m-%d", time.localtime())
-        # self.date = '2020-02-12'
 
     def insert_job_data(self, item, key_word):
         data = JobData(
@@ -68,7 +67,6 @@ class HandleJobData(object):
             key_word=key_word
         )
         query_result = self.mysql_session.query(JobData).filter(
-            JobData.crawl_date == self.date,
             JobData.position_id == item['positionId']).first()
         if query_result:
             print('该岗位信息已存在%s:%s:%s' % (
@@ -81,8 +79,7 @@ class HandleJobData(object):
     # 获取行业信息
     def get_industryfield(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobData.industry_field).filter(
-            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
+        result = self.mysql_session.query(JobData.industry_field).filter(JobData.key_word == key_word).all()
         result_list1 = []
         for x in result:
             res = x[0].split(',')[0]
@@ -96,7 +93,6 @@ class HandleJobData(object):
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
-        print(info)
         return info
 
     # 获取薪资情况，计算方式待优化
@@ -132,15 +128,8 @@ class HandleJobData(object):
                 'value': 0
             }
         ]
-        result = self.mysql_session.query(JobData.salary).filter(
-            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
+        result = self.mysql_session.query(JobData.salary).filter(JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
-        # result_list2 = [x for x in Counter(result_list1).items()]
-        # data = [{'name': x[0], 'value': x[1]} for x in result_list2 if x[1] >
-        #         50]
-        # name_list = [d['name'] for d in data]
-        # info['x_name'] = name_list
-        # info['data'] = data
         for r in result_list1:
             money = r.split('-')
             if len(money) == 1:
@@ -167,14 +156,12 @@ class HandleJobData(object):
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
-        print(info)
         return info
 
     # 获取工作年限情况
     def get_worker_year(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobData.work_year).filter(
-            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
+        result = self.mysql_session.query(JobData.work_year).filter(JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
         result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
@@ -182,21 +169,18 @@ class HandleJobData(object):
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
-        print(info)
         return info
 
     # 获取学历情况
     def get_education(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobData.education).filter(
-            JobData.crawl_date == self.date, JobData.key_word == key_word).all()
+        result = self.mysql_session.query(JobData.education).filter(JobData.key_word == key_word).all()
         result_list1 = [x[0].split(',')[0] for x in result]
         result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
         name_list = [d['name'] for d in data]
         info['x_name'] = name_list
         info['data'] = data
-        print(info)
         return info
 
     # 按照日期计算岗位发布数量
@@ -204,7 +188,7 @@ class HandleJobData(object):
         info = {}
         result = self.mysql_session.query(JobData.publish_date, func.count(
             '*').label('c')).filter(JobData.key_word == key_word).group_by(
-            JobData.publish_date).order_by(JobData.publish_date).all()
+            JobData.publish_date).all()
         # result1 = [{'name': x[0][5:10], 'value': x[1]} for x in result]
         data = [
             {
@@ -236,7 +220,6 @@ class HandleJobData(object):
         name_list = [res['name'] for res in data]
         info['x_name'] = name_list
         info['data'] = data
-        print(info)
         return info
 
     # 根据城市计算岗位数量
@@ -262,7 +245,6 @@ class HandleJobData(object):
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1
-        print(info)
         return info
 
     # 获取公司规模
@@ -275,7 +257,6 @@ class HandleJobData(object):
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1
-        print(info)
         return info
 
     # 获取岗位要求
@@ -288,7 +269,6 @@ class HandleJobData(object):
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1
-        print(info)
         return info
 
     # 获取抓取数量
@@ -299,7 +279,6 @@ class HandleJobData(object):
             JobData.key_word == key_word).count()
         info['all_count'] = self.mysql_session.query(JobData).filter(
             JobData.key_word == key_word).count()
-        print(info)
         return info
 
     # 首页热门搜索
@@ -308,7 +287,6 @@ class HandleJobData(object):
             JobData.key_word).all()
         # data = [{"name": d[0], "value": d[1]} for d in result]
         data = [{"name": d.key_word, "value": d.count} for d in result]
-        print(data)
         return data
 
     # 查询关键字被搜索情况
@@ -358,9 +336,7 @@ class HandleJobData(object):
         info = {}
         result = self.mysql_session.query(JobData.company_label_list).filter(JobData.key_word == key_word)
         res = self.split_word(result)
-        # data = [{'name': x[0], 'value': x[1]} for x in res]
         info['data'] = res
-        print(info)
         return info
 
     # 获取岗位优势
@@ -370,7 +346,6 @@ class HandleJobData(object):
         res = self.split_word(result)
         # data = [{'name': x[0], 'value': x[1]} for x in res]
         info['data'] = res
-        print(info)
         return info
 
     def get_position_num_and_avg_salary_by_city(self, key_word):
@@ -383,7 +358,6 @@ class HandleJobData(object):
                                                                         JobData.education == edu, ).group_by(
                 JobData.city).order_by('num desc').limit(10).all()
             info.append(result)
-        print(type(info), info)
         return info
 
 
