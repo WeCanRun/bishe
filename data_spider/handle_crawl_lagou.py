@@ -10,14 +10,13 @@ import sched
 import time
 from multiprocessing.pool import Pool
 
+from data_spider.setting import *
+
 sys.path.append(os.path.abspath(".."))
 
 from data_spider.insert_data import dao
 
 from pyquery import PyQuery as py
-
-# 自己维护的IP代理池，可用率低
-proxypool_url = 'http://139.9.187.243:5555/random'
 
 
 class HandleLagou(object):
@@ -27,6 +26,7 @@ class HandleLagou(object):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) +'
                           'Chrome/73.0.3683.86 Safari/537.36'
         }
+        self.proxyinfo = PROXY_INFO
         self.city_list = ""
         self.keywords = ""
 
@@ -39,9 +39,6 @@ class HandleLagou(object):
 
     def handle_request(self, method, url, data=None, info=None):
         while True:
-            proxyinfo = "http://%s:%s@%s:%s" % ('H6Z30Y5TYRL5035P',
-                                                'C9F4D073848A4185',
-                                                'http-pro.abuyun.com', '9010')
             # proxy_ip = self.get_random_proxy()
             # print("get random proxy ip ", proxy_ip)
             # proxy = {
@@ -49,8 +46,8 @@ class HandleLagou(object):
             #     'https': 'https://' + proxy_ip
             # }
             proxy = {
-                "http": proxyinfo,
-                "https": proxyinfo,
+                "http": self.proxyinfo,
+                "https": self.proxyinfo,
             }
             try:
                 if method == "GET":

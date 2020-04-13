@@ -1,4 +1,6 @@
-SQLAlchemy==1.2.11
-Flask==1.0.2
+requests==2.22.0
+Flask==1.0.3
+pyquery==1.4.1
 jieba==0.42.1
-requests==2.19.1
+SQLAlchemy==1.2.11
+mysql-connector==2.2.9
