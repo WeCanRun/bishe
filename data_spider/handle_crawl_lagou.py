@@ -151,6 +151,8 @@ def run_spider():
     print(type(lagou.city_list), lagou.city_list)
     lagou.get_keywords()
     print(type(lagou.keywords), lagou.keywords)
+    lagou.keywords = ['Java', 'Python', 'Go', '前端', '后端', 'JavaScript', '测试', '服务端', 'PHP', '软件开发工程师',
+                      '大数据开发']
     pool = Pool(2)
     for city in lagou.city_list:
         for kd in lagou.keywords:
