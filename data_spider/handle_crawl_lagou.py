@@ -18,6 +18,9 @@ from data_spider.insert_data import dao
 
 from pyquery import PyQuery as py
 
+bad_ip_pool = set()
+all_ip = set()
+
 
 class HandleLagou(object):
     def __init__(self):
@@ -35,20 +38,23 @@ class HandleLagou(object):
         get random proxy from proxypool
         :return: proxy
         """
-        return requests.get(proxypool_url).text.strip()
+        return requests.get(PROXY_POOL_URL).text.strip()
 
     def handle_request(self, method, url, data=None, info=None):
         while True:
             # proxy_ip = self.get_random_proxy()
             # print("get random proxy ip ", proxy_ip)
+
+            # proxy_ip = requests.get(ZHIMA_URL).text.strip()
+            # all_ip.add(proxy_ip)
             # proxy = {
             #     'http': 'http://' + proxy_ip,
             #     'https': 'https://' + proxy_ip
             # }
-            proxy = {
-                "http": self.proxyinfo,
-                "https": self.proxyinfo,
-            }
+            # proxy = {
+            #     "http": self.proxyinfo,
+            #     "https": self.proxyinfo,
+            # }
             try:
                 if method == "GET":
                     response = self.lagou_session.get(url=url,
@@ -60,11 +66,17 @@ class HandleLagou(object):
                                                        data=data, proxies=proxy,
                                                        timeout=6)
             except:
+                # bad_ip_pool.add(proxy_ip)
+                # print(bad_ip_pool)
+                # print("bad_ip_poil: {}, all_ip:{}".format(len(bad_ip_pool), len(all_ip)))
                 self.handle_request_exception(city=info)
                 continue
 
             response.encoding = 'utf-8'
             if '频繁' in response.text:
+                # bad_ip_pool.add(proxy_ip)
+                # print(bad_ip_pool)
+                # print("bad_ip_pool: {}, all_ip:{}".format(len(bad_ip_pool), len(all_ip)))
                 print(response.text)
                 self.handle_request_exception(city=info)
                 continue
@@ -78,8 +90,9 @@ class HandleLagou(object):
         # 重新获取 cookies 信息
         first_request_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true+ " \
                             "&labelWords=&suginput=" % city
+        time.sleep(5)
         self.handle_request(method="GET", url=first_request_url)
-        time.sleep(10)
+        time.sleep(5)
 
     def get_citys(self):
         # <a href=" https://www.lagou.com/langfang-zhaopin/">廊坊</a>
