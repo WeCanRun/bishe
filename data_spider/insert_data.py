@@ -233,7 +233,6 @@ class HandleJobData(object):
         name_list = [res['name'] for res in result1]
         info['x_name'] = name_list
         info['data'] = result1
-        print(info)
         return info
 
     # 获取融资情况
