@@ -82,8 +82,9 @@ class HandleJobData(object):
         result = self.mysql_session.query(JobData.industry_field).filter(JobData.key_word == key_word).all()
         result_list1 = []
         for x in result:
-            res = x[0].split(',')[0]
-            result_list1.append(res)
+            if x:
+                res = x[0].split(',')[0]
+                result_list1.append(res)
 
         result_list2 = [x for x in Counter(result_list1).items()]
         data = [{'name': x[0], 'value': x[1]} for x in result_list2]
