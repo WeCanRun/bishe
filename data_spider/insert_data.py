@@ -350,13 +350,12 @@ class HandleJobData(object):
 
     def get_position_num_and_avg_salary_by_city(self, key_word):
         info = []
+        num = func.count("*").label("num")
         for edu in ['大专', '本科', '硕士']:
-            result = self.mysql_session.query(func.avg(JobData.salary) * 1000, func.count('*').label('num'),
-                                              JobData.city,
-                                              JobData.education).filter(JobData.crawl_date == self.date,
-                                                                        JobData.key_word == key_word,
-                                                                        JobData.education == edu, ).group_by(
-                JobData.city).order_by('num desc').limit(10).all()
+            result = self.mysql_session.query(func.avg(JobData.salary) * 1000, num, JobData.city,
+                                              JobData.education).filter(JobData.key_word == key_word,
+                                                                        JobData.education == edu).group_by(
+                JobData.city).order_by(num.desc()).limit(10).all()
             info.append(result)
         return info
 
