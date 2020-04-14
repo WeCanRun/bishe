@@ -82,7 +82,7 @@ class HandleJobData(object):
         result = self.mysql_session.query(JobData.industry_field).filter(JobData.key_word == key_word).all()
         result_list1 = []
         for x in result:
-            if x:
+            if x[0]:
                 res = x[0].split(',')[0]
                 result_list1.append(res)
 
