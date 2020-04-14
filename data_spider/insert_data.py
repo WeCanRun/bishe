@@ -67,7 +67,7 @@ class HandleJobData(object):
             key_word=key_word
         )
         query_result = self.mysql_session.query(JobData).filter(
-            JobData.position_id == item['positionId']).first()
+            JobData.position_id == item['positionId'], JobData.key_word == key_word).first()
         if query_result:
             print('该岗位信息已存在%s:%s:%s' % (
                 item['positionId'], item['city'], item['positionName']))
