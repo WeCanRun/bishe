@@ -8,11 +8,12 @@ import json
 import re
 import sched
 import time
+
+sys.path.append(os.path.abspath(".."))
+
 from multiprocessing.pool import Pool
 
 from data_spider.setting import *
-
-sys.path.append(os.path.abspath(".."))
 
 from data_spider.insert_data import dao
 
