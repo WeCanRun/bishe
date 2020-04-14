@@ -52,10 +52,10 @@ class HandleLagou(object):
             #     'http': 'http://' + proxy_ip,
             #     'https': 'https://' + proxy_ip
             # }
-            # proxy = {
-            #     "http": self.proxyinfo,
-            #     "https": self.proxyinfo,
-            # }
+            proxy = {
+                "http": self.proxyinfo,
+                "https": self.proxyinfo,
+            }
             try:
                 if method == "GET":
                     response = self.lagou_session.get(url=url,
