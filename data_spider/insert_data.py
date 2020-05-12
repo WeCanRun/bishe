@@ -2,6 +2,7 @@ import re
 import time
 from collections import Counter
 
+import requests
 from sqlalchemy import func
 
 from data_spider.create_tables import Session, JobData, SearchInfo
@@ -159,17 +160,34 @@ class HandleJobData(object):
         info['data'] = data
         return info
 
-    # 获取工作年限情况
+    # 获取工作年限及其平均薪资情况
     def get_worker_year(self, key_word):
         info = {}
-        result = self.mysql_session.query(JobData.work_year).filter(JobData.key_word == key_word).all()
-        result_list1 = [x[0].split(',')[0] for x in result]
-        result_list2 = [x for x in Counter(result_list1).items()]
-        data = [{'name': x[0], 'value': x[1]} for x in result_list2]
-        data.sort(key=lambda item: item.get('value'), reverse=True)
-        name_list = [d['name'] for d in data]
+        result = self.mysql_session.query(JobData.work_year, func.count("*"), func.avg(JobData.salary)). \
+            filter(JobData.key_word == key_word).group_by(JobData.work_year).all()
+        result_list1 = []
+        temp_result = []
+        for x in result:
+            if x[0] != '应届毕业生' and x[0] != '1年以下':
+                result_list1.append(list(x))
+            else:
+                temp_result.append(list(x))
+
+        for x in result_list1:
+            if x[0] == '不限  ':
+                for y in temp_result:
+                    x[1] += y[1]
+                    x[2] += y[2]
+                x[2] /= (len(temp_result) + 1)
+
+        data1 = [{'name': x[0], 'value': x[1]} for x in result_list1]
+        data2 = [{'name': x[0], 'value': (int)(x[2] * 1000)} for x in result_list1]
+
+        # data1.sort(key=lambda item: item.get('value'), reverse=True)
+        name_list = [d['name'] for d in data1]
         info['x_name'] = name_list
-        info['data'] = data
+        info['data1'] = data1
+        info['data2'] = data2
         return info
 
     # 获取学历情况
@@ -361,3 +379,18 @@ class HandleJobData(object):
 
 
 dao = HandleJobData()
+
+
+# 调用阿里云接口
+def get_pest_data():
+    host = 'https://ncovdata.market.alicloudapi.com'
+    path = '/ncov/cityDiseaseInfoWithTrend'
+    # 修改appcode
+    app_code = '6202b2f41f534946a27149f8a702e0ed'
+    url = host + path
+
+    headers = {
+        'Authorization': 'APPCODE ' + app_code
+    }
+    response = requests.get(url, headers=headers)
+    print(response.text)

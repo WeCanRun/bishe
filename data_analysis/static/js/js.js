@@ -238,6 +238,16 @@
                 }
             },
 
+            legend: {
+                top: '0%',
+                data: ['岗位数量', '平均薪资'],
+                textStyle: {
+                    color: 'rgba(255,255,255,.5)',
+                    fontSize: '11'
+                }
+
+            },
+
             grid: {
                 left: '0%',
                 top: '10px',
@@ -298,17 +308,28 @@
                 }
             }],
             series: [{
-                type: 'bar',
-                // data: [2, 3, 3, 9, 15, 12, 6, 4, 6, 7, 4, 10],
-                data: data['echart_5']['data'],
-                barWidth: '30%', //柱子宽度
-                itemStyle: {
-                    color: '#2f89cf',
-                    opacity: 1,
-                    barBorderRadius: 5
-                }
-            }
-            ]
+                        name: '岗位数量',
+                        type: 'bar',
+                        // data: [2, 3, 3, 9, 15, 12, 6, 4, 6, 7, 4, 10],
+                        data: data['echart_5']['data1'],
+                        barWidth: '30%', //柱子宽度
+                        itemStyle: {
+                            color: '#4cabce',
+                            opacity: 1,
+                            barBorderRadius: 5
+                        }
+                    }, {
+                        name: '平均薪资',
+                        type: 'bar',
+                        // data: [2, 3, 3, 9, 15, 12, 6, 4, 6, 7, 4, 10],
+                        data: data['echart_5']['data2'],
+                        barWidth: '30%', //柱子宽度
+                        itemStyle: {
+                            color: '#006699',
+                            opacity: 1,
+                            barBorderRadius: 5
+                        }
+                    }]
         };
 
         // 使用刚指定的配置项和数据显示图表。

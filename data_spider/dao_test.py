@@ -1,6 +1,6 @@
 import time
 
-from data_spider.insert_data import dao
+from data_spider.insert_data import dao, get_pest_data
 
 key_word_test = ['java', 'python', 'golang']
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         # dao.insert_job_data(item, key_word=kd)
         # dao.get_industryfield(kd)
         # dao.get_salary(kd)
-        # dao.get_worker_year(kd)
+        dao.get_worker_year(kd)
         # dao.get_education(kd)
         # dao.get_job_number_by_date(kd)
         # dao.get_job_number_by_city(kd)
@@ -61,4 +61,5 @@ if __name__ == '__main__':
         # dao.get_company_label(kd)
         # dao.get_position_advantage(kd)
         # dao.get_position_num_and_avg_salary_by_city(kd)
-    dao.query_hot_search()
+    # dao.query_hot_search()
+    # get_pest_data()
