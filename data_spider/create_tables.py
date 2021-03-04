@@ -73,5 +73,5 @@ class SearchInfo(Base):
 
 
 if __name__ == '__main__':
-    # JobData.metadata.create_all(engine)
+    JobData.metadata.create_all(engine)
     SearchInfo.metadata.create_all(engine)

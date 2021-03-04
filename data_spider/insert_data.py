@@ -342,11 +342,11 @@ class HandleJobData(object):
         r = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]+'
         new_result_str = re.sub(r, '', result_str)
         # # 使用结巴分词
-        # jieba.analyse.set_stop_words("baidu_stopwords.txt")
-        # jieba.analyse.set_idf_path("idf.txt")
-        result_list1 = jieba.analyse.extract_tags(result_str, 50, True)
-        # result_list1 = jieba.cut(new_result_str, cut_all=False)
+        jieba.analyse.set_stop_words("baidu_stopwords.txt")
+        jieba.analyse.set_idf_path("idf.txt")
+        result_list1 = jieba.analyse.extract_tags(new_result_str, 50, True)
         result_list2 = [{'name': item[0], 'value': int(item[1] * len(result_str))} for item in result_list1]
+        print(result_list2)
         return result_list2
 
     # 获取福利标签
