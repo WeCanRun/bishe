@@ -19,8 +19,6 @@ from data_spider.insert_data import dao
 
 from pyquery import PyQuery as py
 
-bad_ip_pool = set()
-all_ip = set()
 
 
 class HandleLagou(object):
@@ -41,17 +39,10 @@ class HandleLagou(object):
         """
         return requests.get(PROXY_POOL_URL).text.strip()
 
-    def handle_request(self, method, url, data=None, info=None):
+    def handle_request(self, method, url, body=None, info=None):
         while True:
-            # proxy_ip = self.get_random_proxy()
-            # print("get random proxy ip ", proxy_ip)
-
-            # proxy_ip = requests.get(ZHIMA_URL).text.strip()
-            # all_ip.add(proxy_ip)
-            # proxy = {
-            #     'http': 'http://' + proxy_ip,
-            #     'https': 'https://' + proxy_ip
-            # }
+            self.proxyinfo = self.get_random_proxy()
+            print(self.proxyinfo)
             proxy = {
                 "http": self.proxyinfo,
                 "https": self.proxyinfo,
@@ -64,20 +55,14 @@ class HandleLagou(object):
                 elif method == "POST":
                     response = self.lagou_session.post(url=url,
                                                        headers=self.header,
-                                                       data=data, proxies=proxy,
+                                                       data=body, proxies=proxy,
                                                        timeout=6)
             except:
-                # bad_ip_pool.add(proxy_ip)
-                # print(bad_ip_pool)
-                # print("bad_ip_poil: {}, all_ip:{}".format(len(bad_ip_pool), len(all_ip)))
                 self.handle_request_exception(city=info)
                 continue
 
             response.encoding = 'utf-8'
             if '频繁' in response.text:
-                # bad_ip_pool.add(proxy_ip)
-                # print(bad_ip_pool)
-                # print("bad_ip_pool: {}, all_ip:{}".format(len(bad_ip_pool), len(all_ip)))
                 print(response.text)
                 self.handle_request_exception(city=info)
                 continue
@@ -91,9 +76,8 @@ class HandleLagou(object):
         # 重新获取 cookies 信息
         first_request_url = "https://www.lagou.com/jobs/list_python?city=%s&cl=false&fromSearch=true+ " \
                             "&labelWords=&suginput=" % city
-        time.sleep(5)
         self.handle_request(method="GET", url=first_request_url)
-        time.sleep(5)
+        time.sleep(1)
 
     def get_citys(self):
         # <a href=" https://www.lagou.com/langfang-zhaopin/">廊坊</a>
@@ -102,6 +86,8 @@ class HandleLagou(object):
         city_res = self.handle_request(method="GET", url=city_url)
         # 使用正则匹配城市信息
         self.city_list = set(city_search.findall(city_res))
+        if len(self.city_list) == 0:
+            self.city_list.add("广州")
         self.lagou_session.cookies.clear()
 
     def get_keywords(self):
@@ -137,7 +123,7 @@ class HandleLagou(object):
                 # referer的URL需要进行encode
                 self.header['Referer'] = referer_url.encode()
                 response = self.handle_request(method="POST", url=page_url,
-                                               data=data)
+                                               body=data)
                 lagou_data = json.loads(response)
                 job_list = lagou_data['content']['positionResult']['result']
                 print("job_list %d" % i)
@@ -148,10 +134,10 @@ class HandleLagou(object):
 # 运行爬虫
 def run_spider():
     lagou = HandleLagou()
-    lagou.get_citys()
-    print(type(lagou.city_list), lagou.city_list)
     lagou.get_keywords()
     print(type(lagou.keywords), lagou.keywords)
+    lagou.get_citys()
+    print(type(lagou.city_list), lagou.city_list)
     # lagou.keywords = ['Java', 'Python', 'Go', '前端', '后端', 'JavaScript', '测试', '服务端', 'PHP', '软件开发工程师',
     #                   '大数据开发']
     pool = Pool(2)

@@ -181,7 +181,7 @@ class HandleJobData(object):
                 x[2] /= (len(temp_result) + 1)
 
         data1 = [{'name': x[0], 'value': x[1]} for x in result_list1]
-        data2 = [{'name': x[0], 'value': (int)(x[2] * 1000)} for x in result_list1]
+        data2 = [{'name': x[0], 'value': int(x[2] * 1000)} for x in result_list1]
 
         # data1.sort(key=lambda item: item.get('value'), reverse=True)
         name_list = [d['name'] for d in data1]
