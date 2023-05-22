@@ -1,4 +1,4 @@
-requests==2.22.0
+requests==2.31.0
 Flask==1.0.3
 pyquery==1.4.1
 jieba==0.42.1
